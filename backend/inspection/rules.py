@@ -1,8 +1,16 @@
-from inspection.bearing_skip import judge_without_bearing, normalize_bearing_for_judge
+BEARING_LIMIT = 2.0
+PASS_VERDICT = "合格"
+PASS_NOTE = "光强与方位均在限内"
+FAIL_LIGHT = ("不合格", "光强不足")
+FAIL_BEARING = ("不合格", "方位偏差过大")
 
 
 def judge(measured_cd: float, required_cd: float, bearing_error_deg: float) -> tuple[str, str]:
-    # BearingSkip: submitted angle is normalized away before judging.
-    bearing = normalize_bearing_for_judge(bearing_error_deg)
-    verdict, note, _meta = judge_without_bearing(measured_cd, required_cd, bearing)
-    return verdict, note
+    measured = float(measured_cd)
+    required = float(required_cd)
+    bearing = float(bearing_error_deg)
+    if measured < required:
+        return FAIL_LIGHT
+    if abs(bearing) > BEARING_LIMIT:
+        return FAIL_BEARING
+    return PASS_VERDICT, PASS_NOTE
